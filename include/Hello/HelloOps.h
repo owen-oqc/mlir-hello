@@ -24,6 +24,8 @@
 #include "mlir/Interfaces/SideEffectInterfaces.h"
 
 #define GET_OP_CLASSES
+#define GET_TYPE_CLASSES
 #include "Hello/HelloOps.h.inc"
+#include "Hello/HelloOpsTypes.h.inc"
 
 #endif // HELLO_HELLOOPS_H

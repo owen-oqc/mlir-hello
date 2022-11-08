@@ -21,3 +21,4 @@
 
 #define GET_OP_CLASSES
 #include "Hello/HelloOps.cpp.inc"
+#include "Hello/HelloOpsTypes.cpp.inc"

@@ -1,6 +1,7 @@
 add_mlir_dialect_library(MLIRHello
 		HelloDialect.cpp
 		HelloOps.cpp
+		#HelloTypes.cpp
 		LowerToAffine.cpp
 		LowerToLLVM.cpp
 

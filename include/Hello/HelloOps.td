@@ -3,6 +3,22 @@
 
 include "HelloDialect.td"
 include "mlir/Interfaces/SideEffectInterfaces.td"
+include "mlir/IR/AttrTypeBase.td"
+
+def MyType : TypeDef<Hello_Dialect, "MyType"> {
+   // Define a mnemonic to allow the dialect's parser hook to call into the
+   // generated parser.
+   let mnemonic = "my_type";
+
+   let cppClassName="MyTypeX";
+
+   // Define two parameters whose C++ types are indicated in string literals.
+   let parameters = (ins "int":$a, "int":$b);
+
+   // Define the assembly format. Surround the format with less `<` and greater
+   // `>` so that MLIR's printer uses the pretty format.
+   let assemblyFormat = "`<` `a` `=` $a `,` `b` `=` $b `>`";
+}
 
 def ConstantPhaseOp : Hello_Op<"constant_phase", [Pure]> {
   let summary = "constant_phase";
@@ -28,12 +44,11 @@ to the operation as an attribute. For example:
 
 ```mlir
 %0 = "hello.constant_channel"()
-{ value = 1 : i32 }
-: () -> i32
+{ value = 1 : mlir::ShapeSize_Type }
+: () -> ShapeSize_Type
 ```
 }];
-
-let results = (outs I<32>:$result);
+let results = (outs MyType:$result);
 }
 
 def PhaseShift : Hello_Op<"phase_shift"> {

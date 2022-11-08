@@ -122,18 +122,39 @@ class ConstantOpLowering : public mlir::OpRewritePattern<hello::ConstantOp> {
   }
 };
 
-class PrintOpLowering : public mlir::OpConversionPattern<hello::PrintOp> {
-  using OpConversionPattern<hello::PrintOp>::OpConversionPattern;
-
-  mlir::LogicalResult matchAndRewrite(hello::PrintOp op, OpAdaptor adaptor,
-                  mlir::ConversionPatternRewriter &rewriter) const final {
-      // We don't lower "hello.print" in this pass, but we need to update its
-      // operands.
-      rewriter.updateRootInPlace(op,
-                                 [&] { op->setOperands(adaptor.getOperands()); });
-      return mlir::success();
-  }
+template <typename T>
+class NoEffectLowering : public mlir::OpConversionPattern<T> {
+public:
+    using mlir::OpConversionPattern<T>::OpConversionPattern;
+    using OpAdapter = typename T::Adaptor;
+    mlir::LogicalResult matchAndRewrite(T op, OpAdapter adaptor,
+                                         mlir::ConversionPatternRewriter &rewriter) const final {
+        // We don't lower "hello.print" in this pass, but we need to update its
+        // operands.
+        rewriter.updateRootInPlace(op,
+                                   [&] { op->setOperands(adaptor.getOperands()); });
+        return mlir::success();
+    }
 };
+
+class PrintOpLowering1 : public mlir::OpConversionPattern<hello::PrintOp> {
+    using OpConversionPattern<hello::PrintOp>::OpConversionPattern;
+
+    mlir::LogicalResult matchAndRewrite(hello::PrintOp op, OpAdaptor adaptor,
+                                        mlir::ConversionPatternRewriter &rewriter) const final {
+        // We don't lower "hello.print" in this pass, but we need to update its
+        // operands.
+        rewriter.updateRootInPlace(op,
+                                   [&] { op->setOperands(adaptor.getOperands()); });
+        return mlir::success();
+    }
+};
+
+
+using PrintOpLowering = NoEffectLowering<hello::PrintOp>;
+using PhaseShiftLowering = NoEffectLowering<hello::PhaseShift>;
+using ConstantPhaseLowering  = NoEffectLowering<hello::ConstantPhaseOp>;
+using ConstantChannelLowering = NoEffectLowering<hello::ConstantChannel>;
 
 namespace {
 class HelloToAffineLowerPass : public mlir::PassWrapper<HelloToAffineLowerPass, mlir::OperationPass<mlir::ModuleOp>> {
@@ -158,9 +179,12 @@ void HelloToAffineLowerPass::runOnOperation() {
       return llvm::none_of(op->getOperandTypes(),
                            [](mlir::Type type) { return type.isa<mlir::TensorType>(); });
   });
+  target.addLegalOp<hello::ConstantPhaseOp>();
+  target.addLegalOp<hello::ConstantChannel>();
+  target.addLegalOp<hello::PhaseShift>();
 
   mlir::RewritePatternSet patterns(&getContext());
-  patterns.add<ConstantOpLowering, PrintOpLowering>(&getContext());
+  patterns.add<ConstantOpLowering, PrintOpLowering, ConstantPhaseLowering, ConstantChannelLowering>(&getContext());
 
   if (mlir::failed(mlir::applyPartialConversion(getOperation(), target, std::move(patterns)))) {
     signalPassFailure();

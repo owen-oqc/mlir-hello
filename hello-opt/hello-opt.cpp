@@ -95,7 +95,7 @@ int loadAndProcessMLIR(mlir::MLIRContext &context, mlir::OwningOpRef<mlir::Modul
   mlir::applyPassManagerCLOptions(passManager);
 
   passManager.addPass(hello::createLowerToAffinePass());
-  passManager.addPass(hello::createLowerToLLVMPass());
+  //passManager.addPass(hello::createLowerToLLVMPass());
 
   if (mlir::failed(passManager.run(*module))) {
     return 4;
@@ -148,8 +148,8 @@ int main(int argc, char **argv) {
     return error;
   }
 
-  dumpLLVMIR(*module);
-//  runJit(*module);
+  //dumpLLVMIR(*module);
+  //runJit(*module);
 
   return 0;
 }

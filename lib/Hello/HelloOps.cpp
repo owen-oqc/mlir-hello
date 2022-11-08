@@ -19,6 +19,7 @@
 #include "Hello/HelloDialect.h"
 #include "mlir/IR/OpImplementation.h"
 
+#define GET_TYPEDEF_CLASSES
+#include "Hello/HelloOpsTypes.cpp.inc"
 #define GET_OP_CLASSES
 #include "Hello/HelloOps.cpp.inc"
-#include "Hello/HelloOpsTypes.cpp.inc"

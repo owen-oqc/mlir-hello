@@ -4,21 +4,37 @@
 include "HelloDialect.td"
 include "mlir/Interfaces/SideEffectInterfaces.td"
 include "mlir/IR/AttrTypeBase.td"
+include "mlir/IR/BuiltinTypes.td"
+include "mlir/IR/OpBase.td"
 
-def MyType : TypeDef<Hello_Dialect, "MyType"> {
-   // Define a mnemonic to allow the dialect's parser hook to call into the
-   // generated parser.
-   let mnemonic = "my_type";
 
-   let cppClassName="MyTypeX";
-
-   // Define two parameters whose C++ types are indicated in string literals.
-   let parameters = (ins "int":$a, "int":$b);
-
-   // Define the assembly format. Surround the format with less `<` and greater
-   // `>` so that MLIR's printer uses the pretty format.
-   let assemblyFormat = "`<` `a` `=` $a `,` `b` `=` $b `>`";
+// It's common to define a base classes for types in the same dialect. This
+// removes the need to pass in the dialect for each type, and can also be used
+// to define a few fields ahead of time.
+class MyDialect_Type<string name, string typeMnemonic, list<Trait> traits = []>
+: TypeDef<Hello_Dialect, name, traits> {
+let mnemonic = typeMnemonic;
 }
+
+
+def Async_ValueType : MyDialect_Type<"Value", "value"> {
+let summary = "async value type";
+let description = [{
+`async.value` represents a value returned by asynchronous operations,
+which may or may not be available currently, but will be available at some
+point in the future.
+}];
+
+let parameters = (ins "Type":$valueType);
+let builders = [
+TypeBuilderWithInferredContext<(ins "Type":$valueType), [{
+return $_get(valueType.getContext(), valueType);
+}]>
+];
+let skipDefaultBuilders = 1;
+let assemblyFormat = "`<` $valueType `>`";
+}
+
 
 def ConstantPhaseOp : Hello_Op<"constant_phase", [Pure]> {
   let summary = "constant_phase";
@@ -48,7 +64,7 @@ to the operation as an attribute. For example:
 : () -> ShapeSize_Type
 ```
 }];
-let results = (outs MyType:$result);
+let results = (outs I<32>:$result);
 }
 
 def PhaseShift : Hello_Op<"phase_shift"> {

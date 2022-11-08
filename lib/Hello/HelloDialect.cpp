@@ -31,6 +31,10 @@ using namespace hello;
 #include "Hello/HelloOpsDialect.cpp.inc"
 
 void HelloDialect::initialize() {
+    addTypes<
+#define GET_TYPEDEF_LIST
+#include "Hello/HelloOpsTypes.cpp.inc"
+    >();
   addOperations<
 #define GET_OP_LIST
 #include "Hello/HelloOps.cpp.inc"

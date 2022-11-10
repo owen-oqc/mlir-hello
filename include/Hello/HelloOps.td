@@ -16,24 +16,9 @@ class MyDialect_Type<string name, string typeMnemonic, list<Trait> traits = []>
 let mnemonic = typeMnemonic;
 }
 
-
-def Async_ValueType : MyDialect_Type<"Value", "value"> {
-let summary = "async value type";
-let description = [{
-`async.value` represents a value returned by asynchronous operations,
-which may or may not be available currently, but will be available at some
-point in the future.
-}];
-
-let parameters = (ins "Type":$valueType);
-let builders = [
-TypeBuilderWithInferredContext<(ins "Type":$valueType), [{
-return $_get(valueType.getContext(), valueType);
-}]>
-];
-let skipDefaultBuilders = 1;
-let assemblyFormat = "`<` $valueType `>`";
-}
+def ChannelType :
+DialectType<Hello_Dialect, CPred<"$_self.isa<hello::ChannelType>()">,
+        "ChannelType">;
 
 
 def ConstantPhaseOp : Hello_Op<"constant_phase", [Pure]> {
@@ -49,7 +34,7 @@ def ConstantPhaseOp : Hello_Op<"constant_phase", [Pure]> {
     ```
   }];
 
-  let results = (outs F<64>:$result);
+  let results = (outs ChannelType:$result);
 }
 
 def ConstantChannel : Hello_Op<"constant_channel", [Pure]> {
@@ -60,11 +45,11 @@ to the operation as an attribute. For example:
 
 ```mlir
 %0 = "hello.constant_channel"()
-{ value = 1 : mlir::ShapeSize_Type }
-: () -> ShapeSize_Type
+{ value = 1 : mlir::Shape_Type }
+: () -> Shape_Type
 ```
 }];
-let results = (outs I<32>:$result);
+let results = (outs ChannelType:$result);
 }
 
 def PhaseShift : Hello_Op<"phase_shift"> {
@@ -78,8 +63,8 @@ Phase shift.
 : () -> f64
 ```
 }];
-let arguments = (ins I<32>:$lhs, F<64>:$rhs);
-let results = (outs I<32>:$result);
+let arguments = (ins ChannelType:$lhs, F<64>:$rhs);
+let results = (outs ChannelType:$result);
 }
 
 def ConstantOp : Hello_Op<"constant", [Pure]> {

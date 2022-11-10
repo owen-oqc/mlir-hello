@@ -26,5 +26,10 @@
 #include "mlir/Interfaces/SideEffectInterfaces.h"
 
 #include "Hello/HelloOpsDialect.h.inc"
-
+namespace hello {
+    class ChannelType : public mlir::Type::TypeBase<ChannelType, mlir::Type, mlir::TypeStorage> {
+    public:
+        using Base::Base;
+    };
+}
 #endif // HELLO_HELLODIALECT_H

@@ -20,6 +20,10 @@ def ChannelType :
 DialectType<Hello_Dialect, CPred<"$_self.isa<hello::ChannelType>()">,
         "ChannelType">;
 
+def Quantum_Component :
+DialectType<Hello_Dialect, CPred<"$_self.isa<hello::QuantumComponent>()">,
+        "QuantumComponent">;
+
 
 def ConstantPhaseOp : Hello_Op<"constant_phase", [Pure]> {
   let summary = "constant_phase";
@@ -45,11 +49,11 @@ to the operation as an attribute. For example:
 
 ```mlir
 %0 = "hello.constant_channel"()
-{ value = 1 : hello::ChannelType }
-: () -> ChannelType
+{ value = 1 : hello::Quantum_Component }
+: () -> Quantum_Component
 ```
 }];
-let results = (outs ChannelType:$result);
+let results = (outs Quantum_Component:$result);
 }
 
 def PhaseShift : Hello_Op<"phase_shift"> {
@@ -63,8 +67,8 @@ Phase shift.
 : () -> f64
 ```
 }];
-let arguments = (ins ChannelType:$lhs, F<64>:$rhs);
-let results = (outs ChannelType:$result);
+let arguments = (ins Quantum_Component:$lhs, F<64>:$rhs);
+let results = (outs Quantum_Component:$result);
 }
 
 def ConstantOp : Hello_Op<"constant", [Pure]> {

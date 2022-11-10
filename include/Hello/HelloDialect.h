@@ -31,5 +31,9 @@ namespace hello {
     public:
         using Base::Base;
     };
+    class QuantumComponent : public mlir::Type::TypeBase<QuantumComponent, mlir::Type, mlir::TypeStorage> {
+    public:
+        using Base::Base;
+    };
 }
 #endif // HELLO_HELLODIALECT_H

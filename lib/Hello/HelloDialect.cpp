@@ -36,7 +36,7 @@ void HelloDialect::initialize() {
 #define GET_OP_LIST
 #include "Hello/HelloOps.cpp.inc"
       >();
-    addTypes<ChannelType>();
+    addTypes<ChannelType, QuantumComponent>();
 }
 
 void hello::ConstantOp::build(mlir::OpBuilder &builder, mlir::OperationState &state, double value) {
@@ -61,6 +61,8 @@ mlir::Operation *HelloDialect::materializeConstant(mlir::OpBuilder &builder,
 
     if (keyword == "ChannelType")
         return ChannelType::get(getContext());
+    if (keyword == "QuantumComponent")
+        return QuantumComponent::get(getContext());
     parser.emitError(parser.getNameLoc(), "unknown hello type: ") << keyword;
     return Type();
 
@@ -71,5 +73,6 @@ void HelloDialect::printType(::mlir::Type type,
                ::mlir::DialectAsmPrinter &os) const{
     mlir::TypeSwitch<Type>(type)
             .Case<ChannelType>([&](Type) { os << "ChannelType"; })
+            .Case<QuantumComponent>([&](Type) { os << "QuantumComponent"; })
             .Default([](Type) { llvm_unreachable("unexpected 'hello' type kind"); });
 }

@@ -16,6 +16,9 @@ def Hello_Dialect : Dialect {
     }];
     let cppNamespace = "::hello";
     let hasConstantMaterializer = 1;
+    // We set this bit to generate the declarations for the dialect's type parsing
+    // and printing hooks.
+    let useDefaultTypePrinterParser = 1;
 }
 
 //===----------------------------------------------------------------------===//

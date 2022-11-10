@@ -34,7 +34,7 @@ def ConstantPhaseOp : Hello_Op<"constant_phase", [Pure]> {
     ```
   }];
 
-  let results = (outs ChannelType:$result);
+  let results = (outs F64:$result);
 }
 
 def ConstantChannel : Hello_Op<"constant_channel", [Pure]> {
@@ -45,8 +45,8 @@ to the operation as an attribute. For example:
 
 ```mlir
 %0 = "hello.constant_channel"()
-{ value = 1 : mlir::Shape_Type }
-: () -> Shape_Type
+{ value = 1 : hello::ChannelType }
+: () -> ChannelType
 ```
 }];
 let results = (outs ChannelType:$result);

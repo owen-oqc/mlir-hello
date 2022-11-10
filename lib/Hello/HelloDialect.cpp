@@ -14,10 +14,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
+#include <iostream>
+#include "llvm/ADT/TypeSwitch.h"
 #include "mlir/IR/Builders.h"
 #include "mlir/IR/OpImplementation.h"
-
+#include "mlir/IR/DialectImplementation.h"
 #include "Hello/HelloDialect.h"
 #include "Hello/HelloOps.h"
 
@@ -50,4 +51,25 @@ mlir::Operation *HelloDialect::materializeConstant(mlir::OpBuilder &builder,
                                                  mlir::Location loc) {
     return builder.create<hello::ConstantOp>(loc, type,
                                       value.cast<mlir::DenseElementsAttr>());
+}
+
+
+::mlir::Type HelloDialect::parseType(::mlir::DialectAsmParser &parser) const{
+    llvm::StringRef keyword;
+    if (parser.parseKeyword(&keyword))
+        return Type();
+
+    if (keyword == "ChannelType")
+        return ChannelType::get(getContext());
+    parser.emitError(parser.getNameLoc(), "unknown hello type: ") << keyword;
+    return Type();
+
+}
+
+/// Print a type registered to this dialect.
+void HelloDialect::printType(::mlir::Type type,
+               ::mlir::DialectAsmPrinter &os) const{
+    mlir::TypeSwitch<Type>(type)
+            .Case<ChannelType>([&](Type) { os << "ChannelType"; })
+            .Default([](Type) { llvm_unreachable("unexpected 'hello' type kind"); });
 }

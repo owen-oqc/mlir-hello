@@ -100,7 +100,7 @@ int loadAndProcessMLIR(mlir::MLIRContext &context, mlir::OwningOpRef<mlir::Modul
   if (mlir::failed(passManager.run(*module))) {
     return 4;
   }
-
+  module->dump();
   return 0;
 }
 

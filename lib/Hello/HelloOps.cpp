@@ -22,4 +22,5 @@
 #define GET_TYPEDEF_CLASSES
 #include "Hello/HelloOpsTypes.cpp.inc"
 #define GET_OP_CLASSES
+#include "mlir/IR/Builders.h"
 #include "Hello/HelloOps.cpp.inc"

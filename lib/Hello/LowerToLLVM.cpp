@@ -32,11 +32,14 @@
 #include "mlir/Dialect/Arith/IR/Arith.h"
 #include "mlir/Dialect/Func/IR/FuncOps.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
+#include "mlir/Dialect/LLVMIR/LLVMTypes.h"
 #include "mlir/Dialect/SCF/IR/SCF.h"
 #include "mlir/Dialect/MemRef/IR/MemRef.h"
 #include "mlir/Pass/Pass.h"
 #include "mlir/Transforms/DialectConversion.h"
 #include "llvm/ADT/Sequence.h"
+#include "mlir/IR/BuiltinAttributes.h"
+
 
 namespace hello {
 class PrintOpLowering : public mlir::ConversionPattern {
@@ -140,44 +143,100 @@ private:
         mlir::ArrayRef<mlir::Value>({cst0, cst0}));
   }
 };
+
+template <typename Op>
+class EraseLoweringOp : public mlir::ConversionPattern {
+public:
+    explicit EraseLoweringOp(mlir::MLIRContext *context)
+    : mlir::ConversionPattern(Op::getOperationName(), 1, context) {}
+
+    using mlir::ConversionPattern::ConversionPattern;
+
+    mlir::LogicalResult matchAndRewrite(mlir::Operation *op, llvm::ArrayRef<mlir::Value> operands,
+                                        mlir::ConversionPatternRewriter &rewriter) const override {
+
+
+    auto parentModule = op->getParentOfType<mlir::ModuleOp>();
+
+    // Get a symbol reference to the printf function, inserting it if necessary.
+    auto printfRef = getOrInsertPrintf(rewriter, parentModule);
+
+        if(!mlir::isa<Op>(op))
+            return mlir::failure();
+
+
+        rewriter.eraseOp(op);
+        return mlir::success();
+    }
+
+private:
+
+    static mlir::FlatSymbolRefAttr getOrInsertPrintf(mlir::PatternRewriter &rewriter,
+                                               mlir::ModuleOp module) {
+        using namespace mlir;
+        auto *context = module.getContext();
+        if (module.lookupSymbol<LLVM::LLVMFuncOp>("printf"))
+            return SymbolRefAttr::get(context, "printf");
+
+        // Create a function declaration for printf, the signature is:
+        //   * `i32 (i8*, ...)`
+        auto llvmI32Ty = IntegerType::get(context, 32);
+        auto llvmI8PtrTy = LLVM::LLVMPointerType::get(IntegerType::get(context, 8));
+        auto llvmFnType = LLVM::LLVMFunctionType::get(llvmI32Ty, llvmI8PtrTy,
+                /*isVarArg=*/true);
+
+        // Insert the printf function into the body of the parent module.
+        PatternRewriter::InsertionGuard insertGuard(rewriter);
+        rewriter.setInsertionPointToStart(module.getBody());
+        rewriter.create<LLVM::LLVMFuncOp>(module.getLoc(), "printf", llvmFnType);
+        return SymbolRefAttr::get(context, "printf");
+
+
 }
+};
 
 namespace {
-class HelloToLLVMLoweringPass
-        : public mlir::PassWrapper<HelloToLLVMLoweringPass, mlir::OperationPass<mlir::ModuleOp>> {
-public:
-  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(HelloToLLVMLoweringPass)
-  void getDependentDialects(mlir::DialectRegistry &registry) const override {
-    registry.insert<mlir::LLVM::LLVMDialect, mlir::scf::SCFDialect>();
-  }
+    class HelloToLLVMLoweringPass
+            : public mlir::PassWrapper<HelloToLLVMLoweringPass, mlir::OperationPass<mlir::ModuleOp>> {
+    public:
+        MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(HelloToLLVMLoweringPass)
 
-  void runOnOperation() final;
-};
-}
+        void getDependentDialects(mlir::DialectRegistry &registry) const override {
+            registry.insert<mlir::LLVM::LLVMDialect, mlir::scf::SCFDialect>();
+        }
 
-void HelloToLLVMLoweringPass::runOnOperation() {
-  mlir::LLVMConversionTarget target(getContext());
-  target.addLegalOp<mlir::ModuleOp>();
+        void runOnOperation() final;
+    };
 
-  mlir::LLVMTypeConverter typeConverter(&getContext());
-  mlir::RewritePatternSet patterns(&getContext());
 
-  populateAffineToStdConversionPatterns(patterns);
-  populateSCFToControlFlowConversionPatterns(patterns);
-  mlir::arith::populateArithToLLVMConversionPatterns(typeConverter, patterns);
+    void HelloToLLVMLoweringPass::runOnOperation() {
+        mlir::LLVMConversionTarget target(getContext());
+        target.addLegalOp<mlir::ModuleOp>();
 
-  mlir::populateMemRefToLLVMConversionPatterns(typeConverter, patterns);
-  mlir::cf::populateControlFlowToLLVMConversionPatterns(typeConverter, patterns);
-  populateFuncToLLVMConversionPatterns(typeConverter, patterns);
+        mlir::LLVMTypeConverter typeConverter(&getContext());
+        mlir::RewritePatternSet patterns(&getContext());
 
-  patterns.add<hello::PrintOpLowering>(&getContext());
+        populateAffineToStdConversionPatterns(patterns);
+        populateSCFToControlFlowConversionPatterns(patterns);
+        mlir::arith::populateArithToLLVMConversionPatterns(typeConverter, patterns);
 
-  auto module = getOperation();
-  if (failed(applyFullConversion(module, target, std::move(patterns)))) {
-    signalPassFailure();
-  }
-}
+        mlir::populateMemRefToLLVMConversionPatterns(typeConverter, patterns);
+        mlir::cf::populateControlFlowToLLVMConversionPatterns(typeConverter, patterns);
+        populateFuncToLLVMConversionPatterns(typeConverter, patterns);
 
-std::unique_ptr<mlir::Pass> hello::createLowerToLLVMPass() {
-  return std::make_unique<HelloToLLVMLoweringPass>();
-}
+        patterns.add<hello::PrintOpLowering>(&getContext());
+        patterns.add<hello::EraseLoweringOp<hello::ConstantPhaseOp>>(&getContext());
+        patterns.add<hello::EraseLoweringOp<hello::ConstantChannel>>(&getContext());
+        patterns.add<hello::EraseLoweringOp<hello::PhaseShift>>(&getContext());
+
+        auto module = getOperation();
+        if (failed(applyFullConversion(module, target, std::move(patterns)))) {
+            signalPassFailure();
+        }
+    }
+}}
+
+    std::unique_ptr<mlir::Pass> hello::createLowerToLLVMPass() {
+        return std::make_unique<HelloToLLVMLoweringPass>();
+    }
+

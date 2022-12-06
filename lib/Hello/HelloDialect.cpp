@@ -45,6 +45,14 @@ void hello::ConstantOp::build(mlir::OpBuilder &builder, mlir::OperationState &st
   hello::ConstantOp::build(builder, state, dataType, dataAttribute);
 }
 
+void hello::ConstantChannel::build(::mlir::OpBuilder &odsBuilder, ::mlir::OperationState &odsState, int value) {
+    // TODO defined in ODS as builder for op but not implemented
+}
+
+void hello::ConstantPhaseOp::build(::mlir::OpBuilder &odsBuilder, ::mlir::OperationState &odsState, double value) {
+    // TODO defined in ODS as builder for op but not implemented
+}
+
 mlir::Operation *HelloDialect::materializeConstant(mlir::OpBuilder &builder,
                                                  mlir::Attribute value,
                                                  mlir::Type type,

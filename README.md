@@ -15,9 +15,13 @@ We need to build our own MLIR in the local machine in advance. Please follow the
 
 Please make sure to build LLVM project first according to [the instruction](https://mlir.llvm.org/getting_started/).
 
+Note that this is Currently working with llvm sha1 `22914a82299dc45d4e5a3ec6c50808c97e6e6a10` in a conda environment created via:
+
+`conda create -n llvm-dev llvmdev=15.0.4 ninja cmake -c conda-forge`
+
 ```sh
 mkdir build && cd build
-cmake -G Ninja .. -DLLVM_DIR=/path/to/llvm-project/build/lib/cmake/llvm \
+cmake -G 'CodeBlocks - Ninja' .. -DLLVM_DIR=/path/to/llvm-project/build/lib/cmake/llvm \
   -DMLIR_DIR=/path/to/llvm-project/build/lib/cmake/mlir
 
 cmake --build . --target hello-opt
@@ -29,6 +33,13 @@ To build the documentation from the TableGen description of the dialect operatio
 ```sh
 cmake --build . --target mlir-doc
 ```
+
+## OQC Specifics
+
+`$ ./build/bin/hello-opt  ../test/Hello/oqc.mlir`
+
+Converts OQC Dialect into LLVM
+
 
 ## Execution
 

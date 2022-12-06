@@ -7,6 +7,26 @@ include "mlir/IR/AttrTypeBase.td"
 include "mlir/IR/BuiltinTypes.td"
 include "mlir/IR/OpBase.td"
 
+//include "mlir/Dialect/DLTI/DLTIBase.td"
+//include "mlir/Dialect/Linalg/IR/LinalgInterfaces.td"
+//include "mlir/IR/EnumAttr.td"
+//include "mlir/IR/OpBase.td"
+//include "mlir/IR/OpAsmInterface.td"
+//include "mlir/IR/PatternBase.td"
+//include "mlir/IR/RegionKindInterface.td"
+//include "mlir/IR/SymbolInterfaces.td"
+//include "mlir/Interfaces/CallInterfaces.td"
+//include "mlir/Interfaces/ControlFlowInterfaces.td"
+//include "mlir/Interfaces/CopyOpInterface.td"
+//include "mlir/Interfaces/DataLayoutInterfaces.td"
+//include "mlir/Interfaces/DestinationStyleOpInterface.td"
+//include "mlir/Interfaces/InferIntRangeInterface.td"
+//include "mlir/Interfaces/InferTypeOpInterface.td"
+//include "mlir/Interfaces/LoopLikeInterface.td"
+//include "mlir/Interfaces/SideEffectInterfaces.td"
+
+
+
 
 // It's common to define a base classes for types in the same dialect. This
 // removes the need to pass in the dialect for each type, and can also be used
@@ -38,6 +58,10 @@ def ConstantPhaseOp : Hello_Op<"constant_phase", [Pure]> {
     ```
   }];
 
+let builders = [
+OpBuilder<(ins "double":$value)>
+];
+  let arguments = (ins AnyAttr:$value);
   let results = (outs F64:$result);
 }
 
@@ -53,8 +77,22 @@ to the operation as an attribute. For example:
 : () -> Quantum_Component
 ```
 }];
+let builders = [
+OpBuilder<(ins "int":$value)>
+];
 let results = (outs Quantum_Component:$result);
 }
+
+//def NonNegIntAttrOp : Hello_Op<"non_negative_int_attr"> {
+//let arguments = (ins
+//ConfinedAttr<I32Attr, [IntNonNegative]>:$i32attr,
+//ConfinedAttr<I64Attr, [IntNonNegative]>:$i64attr
+//);
+//}
+
+
+
+
 
 def PhaseShift : Hello_Op<"phase_shift"> {
 let summary = "phase_shift";

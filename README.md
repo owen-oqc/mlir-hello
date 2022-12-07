@@ -17,7 +17,7 @@ Please make sure to build LLVM project first according to [the instruction](http
 
 Note that this is Currently working with llvm sha1 `22914a82299dc45d4e5a3ec6c50808c97e6e6a10` in a conda environment created via:
 
-`conda create -n llvm-dev llvmdev=15.0.4 ninja cmake -c conda-forge`
+`conda create -n minimal-cpp-dev ninja cmake -c conda-forge`
 
 ```sh
 mkdir build && cd build
@@ -30,6 +30,7 @@ cmake --build . --target hello-opt
 To run the test, `check-hello` target will be usable.
 
 To build the documentation from the TableGen description of the dialect operations, run
+
 ```sh
 cmake --build . --target mlir-doc
 ```
@@ -38,7 +39,11 @@ cmake --build . --target mlir-doc
 
 `$ ./build/bin/hello-opt  ../test/Hello/oqc.mlir`
 
-Converts OQC Dialect into LLVM
+Converts OQC Dialect into LLVM.
+
+The following shows intermediate IR through all the passes
+
+`$ ./bin/hello-opt ../test/Hello/oqc.mlir --mlir-print-ir-after-all`
 
 
 ## Execution

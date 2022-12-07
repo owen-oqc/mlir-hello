@@ -223,8 +223,8 @@ namespace {
         mlir::populateMemRefToLLVMConversionPatterns(typeConverter, patterns);
         mlir::cf::populateControlFlowToLLVMConversionPatterns(typeConverter, patterns);
         populateFuncToLLVMConversionPatterns(typeConverter, patterns);
-
         patterns.add<hello::PrintOpLowering>(&getContext());
+        // Throw some instructions (demo)
         patterns.add<hello::EraseLoweringOp<hello::ConstantPhaseOp>>(&getContext());
         patterns.add<hello::EraseLoweringOp<hello::ConstantChannel>>(&getContext());
         patterns.add<hello::EraseLoweringOp<hello::PhaseShift>>(&getContext());

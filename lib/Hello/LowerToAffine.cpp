@@ -184,7 +184,7 @@ void HelloToAffineLowerPass::runOnOperation() {
   target.addLegalOp<hello::PhaseShift>();
 
   mlir::RewritePatternSet patterns(&getContext());
-  patterns.add<ConstantOpLowering, PrintOpLowering, ConstantPhaseLowering, ConstantChannelLowering>(&getContext());
+  patterns.add<ConstantOpLowering, PrintOpLowering, ConstantPhaseLowering, ConstantChannelLowering, PhaseShiftLowering>(&getContext());
 
   if (mlir::failed(mlir::applyPartialConversion(getOperation(), target, std::move(patterns)))) {
     signalPassFailure();

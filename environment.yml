@@ -1,0 +1,12 @@
+name: mlir-conda 
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+# build tools
+  - cmake=3.26
+  - ninja
+  - python=3.9.*
+# llvm deps
+  - llvmdev=16.0.6
+  - mlir=16.0.6

@@ -53,7 +53,7 @@ To run the test, `check-hello` target will be usable.
 
 To build the documentation from the TableGen description of the dialect operations, run
 
-```sh
+```shell
 cmake --build . --target mlir-doc
 ```
 
@@ -82,6 +82,23 @@ $ lli /path/to/print.ll
 1.000000 2.000000 3.000000
 4.000000 5.000000 6.000000
 ```
+
+## Lit Checks
+
+The conda layout is not exactly what the testing framework expects. A number of utilities need to be symbolically linked
+
+```
+ln -sf $CONDA_PREFIX/libexec/llvm/not $CONDA_PREFIX/bin
+ln -sf $CONDA_PREFIX/libexec/llvm/count $CONDA_PREFIX/bin
+ln -sf $CONDA_PREFIX/libexec/llvm/FileCheck $CONDA_PREFIX/bin
+```
+
+Then to run the tests
+
+```
+ninja check-hello
+```
+
 
 ## Operations
 

@@ -10,3 +10,4 @@ dependencies:
 # llvm deps
   - llvmdev=16.0.6
   - mlir=16.0.6
+  - lit=16.0.6

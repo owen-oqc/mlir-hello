@@ -159,7 +159,7 @@ public:
     auto parentModule = op->getParentOfType<mlir::ModuleOp>();
 
     // Get a symbol reference to the printf function, inserting it if necessary.
-    auto printfRef = getOrInsertPrintf(rewriter, parentModule);
+    [[maybe_unused]] auto printfRef = getOrInsertPrintf(rewriter, parentModule);
 
         if(!mlir::isa<Op>(op))
             return mlir::failure();

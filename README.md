@@ -6,6 +6,8 @@ This is the minimal example to look into the way to implement the hello-world ki
 
 ### Building
 
+You'll need miniconda on your device for this to work
+
 ```shell
 conda env create -f enviornment.yml && conda activate mlir-conda
 mkdir build && cd build
@@ -18,40 +20,10 @@ cmake --build . --target hello-opt
 
 That's it.
 
-*Note that llvm-lit is not working correctly via this route but that is fixable just a TODO.
-If you need lit, follow instructions in next section instead*
 
-## Alternative Method - From Third-Party Sources
+To run the test, `check-hello` target will be usable. See section below on Lit for this.
 
-### Prerequisites
-
-* [LLVM](https://llvm.org/)
-* [MLIR](https://mlir.llvm.org/)
-* [CMake](https://cmake.org/)
-* [Ninja](https://ninja-build.org/)
-
-We need to build our own MLIR in the local machine in advance. Please follow the build instruction for MLIR [here](https://mlir.llvm.org/getting_started/). 
-
-### Building
-
-Please make sure to build LLVM project first according to [the instruction](https://mlir.llvm.org/getting_started/).
-
-Note that this is Currently working with llvm sha1 `22914a82299dc45d4e5a3ec6c50808c97e6e6a10` in a conda environment created via:
-This should also work with llvm 16.0.6
-
-`conda create -n minimal-cpp-dev ninja cmake -c conda-forge`
-
-```sh
-mkdir build && cd build
-cmake -G 'CodeBlocks - Ninja' .. -DLLVM_DIR=/path/to/llvm-project/build/lib/cmake/llvm \
-  -DMLIR_DIR=/path/to/llvm-project/build/lib/cmake/mlir
-
-cmake --build . --target hello-opt
-```
-
-To run the test, `check-hello` target will be usable.
-
-To build the documentation from the TableGen description of the dialect operations, run
+To build the documentation from the TableGen description of the dialect operations, run:
 
 ```shell
 cmake --build . --target mlir-doc

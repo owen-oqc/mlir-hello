@@ -8,7 +8,7 @@ configure_lit_site_cfg(
 )
 
 set(HELLO_TEST_DEPENDS
-        FileCheck
+        FileCheck count not
         hello-opt
         )
 

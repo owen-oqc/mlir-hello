@@ -25,6 +25,8 @@
 namespace hello {
   std::unique_ptr<mlir::Pass> createLowerToAffinePass();
   std::unique_ptr<mlir::Pass> createLowerToLLVMPass();
+  std::unique_ptr<mlir::Pass> dataFlowAnalysisPass();
+
 }
 
 #endif // MLIR_HELLO_PASSES_H

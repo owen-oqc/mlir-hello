@@ -56,9 +56,7 @@ to the operation as an attribute. For example:
 : () -> Quantum_Component
 ```
 }];
-let builders = [
-OpBuilder<(ins "int":$value)>
-];
+let arguments = (ins I32Attr:$value, StrAttr:$tag);
 let results = (outs Quantum_Component:$result);
 }
 

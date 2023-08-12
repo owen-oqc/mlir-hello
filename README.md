@@ -11,7 +11,7 @@ You'll need miniconda on your device for this to work
 ```shell
 conda env create -f enviornment.yml && conda activate mlir-conda
 mkdir build && cd build
-cmake -G 'CodeBlocks - Ninja' .. 
+cmake -G 'CodeBlocks - Ninja' -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .. 
 ```
 
 ```shell
